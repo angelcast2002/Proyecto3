@@ -2,15 +2,6 @@
 
 Cube::Cube(const glm::vec3& center, float size, const Material& mat)
         : center(center), size(size), Object(mat) {
-    // Inicializar los vértices del cubo
-    vertices[0] = center + glm::vec3(-size / 2.0f, -size / 2.0f, -size / 2.0f);
-    vertices[1] = center + glm::vec3(size / 2.0f, -size / 2.0f, -size / 2.0f);
-    vertices[2] = center + glm::vec3(-size / 2.0f, -size / 2.0f, size / 2.0f);
-    vertices[3] = center + glm::vec3(size / 2.0f, -size / 2.0f, size / 2.0f);
-    vertices[4] = center + glm::vec3(-size / 2.0f, size / 2.0f, -size / 2.0f);
-    vertices[5] = center + glm::vec3(size / 2.0f, size / 2.0f, -size / 2.0f);
-    vertices[6] = center + glm::vec3(-size / 2.0f, size / 2.0f, size / 2.0f);
-    vertices[7] = center + glm::vec3(size / 2.0f, size / 2.0f, size / 2.0f);
 }
 
 Intersect Cube::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection) const {

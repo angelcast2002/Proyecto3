@@ -153,15 +153,19 @@ void setUp() {
 }
 
 void render() {
+    float fov = 3.1415/3;
     for (int y = 0; y < SCREEN_HEIGHT; y++) {
         for (int x = 0; x < SCREEN_WIDTH; x++) {
+
             float screenX = (2.0f * (x + 0.5f)) / SCREEN_WIDTH - 1.0f;
             float screenY = -(2.0f * (y + 0.5f)) / SCREEN_HEIGHT + 1.0f;
             screenX *= ASPECT_RATIO;
-            screenX *= tan(FOV / 2.0f);
-            screenY *= tan(FOV / 2.0f);
+            screenX *= tan(fov/2.0f);
+            screenY *= tan(fov/2.0f);
+
 
             glm::vec3 cameraDir = glm::normalize(camera.target - camera.position);
+
             glm::vec3 cameraX = glm::normalize(glm::cross(cameraDir, camera.up));
             glm::vec3 cameraY = glm::normalize(glm::cross(cameraX, cameraDir));
             glm::vec3 rayDirection = glm::normalize(
@@ -169,45 +173,7 @@ void render() {
             );
 
             Color pixelColor = castRay(camera.position, rayDirection);
-
-            // Obtén el objeto más cercano al rayo
-            Object* hitObject = nullptr;
-            Intersect intersect;
-            float zBuffer = 99999;
-
-            for (const auto& object : objects) {
-                Intersect i = object->rayIntersect(camera.position, rayDirection);
-                if (i.isIntersecting && i.dist < zBuffer) {
-                    zBuffer = i.dist;
-                    hitObject = object;
-                    intersect = i;
-                }
-            }
-
-            if (hitObject) {
-                SDL_Texture* texture = hitObject->getTexture();
-                if (texture) {
-                    // Calcula la posición del píxel en las coordenadas de la textura
-                    float u = (float)x / SCREEN_WIDTH;
-                    float v = (float)y / SCREEN_HEIGHT;
-
-                    // Calcula las coordenadas de textura usando las coordenadas UV
-                    int texX = static_cast<int>(u * 128);
-                    int texY = static_cast<int>(v * 128);
-
-                    // Crea un rectángulo de destino para renderizar la textura en el píxel
-                    SDL_Rect destRect = { x, y, 1, 1 };
-
-                    // Renderiza la textura en el píxel
-                    SDL_RenderCopy(renderer, texture, nullptr, &destRect);
-                } else {
-                    // Renderiza el color sólido si no hay textura
-                    point(glm::vec2(x, y), pixelColor);
-                }
-            } else {
-                // Renderiza el color sólido si no hay intersección
-                point(glm::vec2(x, y), pixelColor);
-            }
+            point(glm::vec2(x, y), pixelColor);
         }
     }
 }
