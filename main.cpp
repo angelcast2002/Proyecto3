@@ -28,7 +28,7 @@ const float FOV = 3.1415f/3.0f;
 
 SDL_Renderer* renderer;
 std::vector<Object*> objects;
-Light light(glm::vec3(-1.0, 0, 10), 0.7f, Color(255, 255, 255));
+Light light(glm::vec3(-1.0, 0, 10), 0.5f, Color(255, 255, 255));
 Camera camera(glm::vec3(0.0, 0.0, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 10.0f);
 
 Color getColorFromSurface(SDL_Surface* surface, float u, float v) {
@@ -144,7 +144,6 @@ Color castRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const s
 
     // Combinación de los componentes de iluminación y efectos
     Color color = (diffuseLight + specularLight) * (1.0f - hitObject->material.reflectivity - hitObject->material.transparency) + reflectedColor * hitObject->material.reflectivity + refractedColor * hitObject->material.transparency;
-    color = color * diffusecolor;
     return color;
 }
 
@@ -157,7 +156,7 @@ void setUp() {
         0.0f,
         0.0f,
         0.0f,
-        loadTexture("C:\\Users\\caste\\OneDrive\\Documentos\\Universidad\\semestre6\\graficosxcomputador\\Proyecto3\\assets\\STONE2.png")
+        loadTexture(R"(..\assets\STONE2.png)")
     };
 
     Material ivory = {
@@ -166,7 +165,9 @@ void setUp() {
         0.5,
         50.0f,
         0.4f,
-        0.0f
+        0.0f,
+        0.0f,
+        loadTexture(R"(..\assets\test1.png)")
     };
 
     Material mirror = {
@@ -185,6 +186,8 @@ void setUp() {
         1425.0f,
         0.2f,
         1.0f,
+        0.0f,
+        loadTexture(R"(..\assets\test1.png)")
     };
     /*
     objects.push_back(new Sphere(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, rubber));
@@ -193,7 +196,8 @@ void setUp() {
     */
 
 
-    objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -0.0f), 1.0f, rubber));
+    //objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -0.0f), 1.0f, rubber));
+    objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -0.0f), 1.0f, glass));
     /*objects.push_back(new Cube(glm::vec3(0.0f, 1.0f, -3.0f), 1.0f, glass));
     objects.push_back(new Cube(glm::vec3(-1.0f, 0.0f, -4.0f), 1.0f, ivory));
     objects.push_back(new Cube(glm::vec3(1.0f, 0.0f, -4.0f), 1.0f, mirror));*/
