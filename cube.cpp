@@ -57,9 +57,5 @@ Intersect Cube::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDir
         ty = (localHitPoint.y / size) + 0.5f;
     }
 
-    // Asegúrate de que las coordenadas UV estén en el rango [0, 1]
-    tx = tx - floor(tx);
-    ty = ty - floor(ty);
-
     return Intersect{true, tHit, point, normal, tx, ty};
 }

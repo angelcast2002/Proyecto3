@@ -17,3 +17,10 @@ void Camera::move(float deltaZ) {
   glm::vec3 dir = glm::normalize(target - position);
   position += dir * deltaZ;
 }
+
+void Camera::moveY(float deltaY) {
+    position.y += deltaY;
+    target.y += deltaY;
+    up.y = 1.0f;  // Asegura que el vector 'up' apunte hacia arriba
+}
+

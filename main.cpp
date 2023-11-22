@@ -28,8 +28,8 @@ const float FOV = 3.1415f/3.0f;
 
 SDL_Renderer* renderer;
 std::vector<Object*> objects;
-Light light(glm::vec3(-3.0, 0, 10), 1.0f, Color(255, 255, 255));
-Camera camera(glm::vec3(0.0, 0.0, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 10.0f);
+Light light(glm::vec3(-2.0, 0, 10), 1.0f, Color(255, 255, 255));
+Camera camera(glm::vec3(0.0, 3.0, 10.0f), glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 10.0f);
 
 SDL_Surface* loadTexture(const std::string& file) {
     SDL_Surface* surface = IMG_Load(file.c_str());
@@ -43,16 +43,17 @@ Color getColorFromSurface(SDL_Surface* surface, float u, float v) {
     Color color = {0, 0, 0, 0};  // Inicializa el color como negro por defecto
 
     if (surface != NULL) {
-        // Asegúrate de que las coordenadas de textura estén en el rango [0, 1]
-        u = fmodf(u, 1.0f);
-        v = fmodf(v, 1.0f);
-
         if (u < 0) u += 1.0f;
         if (v < 0) v += 1.0f;
 
+        // Intercambia u y v para girar 90 grados
+        float temp = u;
+        u = v;
+        v = 1.0f - temp;
+
         // Convierte las coordenadas de textura a coordenadas de píxeles
-        int x = (int)(u * surface->w);
-        int y = (int)(v * surface->h);
+        int x = static_cast<int>(u * surface->w);
+        int y = static_cast<int>(v * surface->h);
 
         // Obtiene el color del píxel en esas coordenadas
         Uint32 pixel = 0;
@@ -65,6 +66,7 @@ Color getColorFromSurface(SDL_Surface* surface, float u, float v) {
 
     return color;
 }
+
 
 void point(glm::vec2 position, Color color) {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
@@ -159,58 +161,199 @@ void drawBackground() {
 }
 
 void setUp() {
-    Material rubber = {
+    Material doorUp = {
+            Color(80, 0, 0),   // diffuse
+            0.18,
+            0.35,
+            5.0f,
+            0.8f,
+            0.0f,
+            2.0f,
+            loadTexture(R"(..\assets\doorUp.png)")
+    };
+
+    Material doorDown = {
+            Color(80, 0, 0),   // diffuse
+            0.18,
+            0.35,
+            5.0f,
+            0.8f,
+            0.0f,
+            2.0f,
+            loadTexture(R"(..\assets\doorDown.png)")
+    };
+
+    Material oak = {
         Color(80, 0, 0),   // diffuse
-        0.9,
-        0.1,
-        10.0f,
+        0.18,
+        0.35,
+        3.0f,
+        0.8f,
         0.0f,
-        0.0f,
-        0.0f,
-        loadTexture(R"(..\assets\coal.png)")
+        3.0f,
+        loadTexture(R"(..\assets\oak.png)")
     };
 
-    Material ivory = {
-        Color(100, 100, 80),
-        0.5,
-        0.5,
-        50.0f,
-        0.4f,
-        0.0f,
-        0.0f,
-        loadTexture(R"(..\assets\test1.png)")
+    Material wood = {
+            Color(80, 0, 0),   // diffuse
+            0.16,
+            0.3,
+            2.0f,
+            0.8f,
+            0.0f,
+            3.0f,
+            loadTexture(R"(..\assets\rawWood.png)")
     };
 
-    Material mirror = {
-        Color(255, 255, 255),
-        0.0f,
-        10.0f,
-        1425.0f,
-        0.9f,
-        0.0f
+    Material stone = {
+            Color(80, 0, 0),   // diffuse
+            0.3,
+            0.5,
+            3.0f,
+            0.8f,
+            0.0f,
+            1.6f,
+            loadTexture(R"(..\assets\stone.png)")
     };
 
-    Material glass = {
-        Color(255, 255, 255),
-        0.0f,
-        10.0f,
-        1425.0f,
-        0.2f,
-        1.0f,
-        0.0f,
-        loadTexture(R"(..\assets\test1.png)")
+    Material glowstone = {
+            Color(80, 0, 0),   // diffuse
+            0.8,
+            0.8,
+            20.0f,
+            5.0f,
+            0.8f,
+            1.7f,
+            loadTexture(R"(..\assets\glowstone.png)")
     };
-    /*
-    objects.push_back(new Sphere(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, rubber));
-    objects.push_back(new Sphere(glm::vec3(-1.0f, 0.0f, -4.0f), 1.0f, ivory));
-    objects.push_back(new Sphere(glm::vec3(1.0f, 0.0f, -4.0f), 1.0f, mirror));
-    */
 
+    Material terracotta = {
+            Color(80, 0, 0),   // diffuse
+            0.71,
+            0.67,
+            20.0f,
+            0.8f,
+            0.0f,
+            1.6f,
+            loadTexture(R"(..\assets\terracotta.png)")
+    };
 
-    objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -0.0f), 1.0f, rubber));
-    /*objects.push_back(new Cube(glm::vec3(0.0f, 1.0f, -3.0f), 1.0f, glass));
-    objects.push_back(new Cube(glm::vec3(-1.0f, 0.0f, -4.0f), 1.0f, ivory));
-    objects.push_back(new Cube(glm::vec3(1.0f, 0.0f, -4.0f), 1.0f, mirror));*/
+    // Cara frontal
+    objects.push_back(new Cube(glm::vec3(0.0f, 1.0f, -0.0f), 1.0f, doorUp));
+    objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -0.0f), 1.0f, doorDown));
+
+    objects.push_back(new Cube(glm::vec3(1.0f, 0.0f, -0.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(1.0f, 1.0f, -0.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 0.0f, -0.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 1.0f, -0.0f), 1.0f, oak));
+
+    objects.push_back(new Cube(glm::vec3(1.0f, 2.0f, -0.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 2.0f, -0.0f), 1.0f, glowstone));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 2.0f, -0.0f), 1.0f, stone));
+
+    objects.push_back(new Cube(glm::vec3(2.0f, 0.0f, -0.0f), 1.0f, wood));
+    objects.push_back(new Cube(glm::vec3(2.0f, 1.0f, -0.0f), 1.0f, wood));
+    objects.push_back(new Cube(glm::vec3(2.0f, 2.0f, -0.0f), 1.0f, wood));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 0.0f, -0.0f), 1.0f, wood));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 1.0f, -0.0f), 1.0f, wood));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 2.0f, -0.0f), 1.0f, wood));
+
+    // cara derecha
+    objects.push_back(new Cube(glm::vec3(2.0f, 0.0f, -1.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(2.0f, 0.0f, -2.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(2.0f, 0.0f, -3.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(2.0f, 1.0f, -1.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(2.0f, 1.0f, -2.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(2.0f, 1.0f, -3.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(2.0f, 2.0f, -1.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(2.0f, 2.0f, -2.0f), 1.0f, glowstone));
+    objects.push_back(new Cube(glm::vec3(2.0f, 2.0f, -3.0f), 1.0f, stone));
+
+    objects.push_back(new Cube(glm::vec3(2.0f, 0.0f, -4.0f), 1.0f, wood));
+    objects.push_back(new Cube(glm::vec3(2.0f, 1.0f, -4.0f), 1.0f, wood));
+    objects.push_back(new Cube(glm::vec3(2.0f, 2.0f, -4.0f), 1.0f, wood));
+
+    // cara izquierda
+    objects.push_back(new Cube(glm::vec3(-2.0f, 0.0f, -1.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 0.0f, -2.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 0.0f, -3.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 1.0f, -1.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 1.0f, -2.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 1.0f, -3.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 2.0f, -1.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 2.0f, -2.0f), 1.0f, glowstone));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 2.0f, -3.0f), 1.0f, stone));
+
+    objects.push_back(new Cube(glm::vec3(-2.0f, 0.0f, -4.0f), 1.0f, wood));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 1.0f, -4.0f), 1.0f, wood));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 2.0f, -4.0f), 1.0f, wood));
+
+    // cara trasera
+    objects.push_back(new Cube(glm::vec3(-1.0f, 0.0f, -4.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 1.0f, -4.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 2.0f, -4.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -4.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(0.0f, 1.0f, -4.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(0.0f, 2.0f, -4.0f), 1.0f, glowstone));
+    objects.push_back(new Cube(glm::vec3(1.0f, 0.0f, -4.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(1.0f, 1.0f, -4.0f), 1.0f, oak));
+    objects.push_back(new Cube(glm::vec3(1.0f, 2.0f, -4.0f), 1.0f, stone));
+
+    // Techo
+    objects.push_back(new Cube(glm::vec3(-1.0f, 3.0f, -0.0f), 1.0f, terracotta));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 3.0f, -1.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 3.0f, -2.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 3.0f, -3.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 3.0f, -4.0f), 1.0f, terracotta));
+
+    objects.push_back(new Cube(glm::vec3(-1.0f, 4.0f, -0.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 4.0f, -1.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 4.0f, -2.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 4.0f, -3.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 4.0f, -4.0f), 1.0f, stone));
+
+    objects.push_back(new Cube(glm::vec3(1.0f, 3.0f, -0.0f), 1.0f, terracotta));
+    objects.push_back(new Cube(glm::vec3(1.0f, 3.0f, -1.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(1.0f, 3.0f, -2.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(1.0f, 3.0f, -3.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(1.0f, 3.0f, -4.0f), 1.0f, terracotta));
+
+    objects.push_back(new Cube(glm::vec3(1.0f, 4.0f, -0.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(1.0f, 4.0f, -1.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(1.0f, 4.0f, -2.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(1.0f, 4.0f, -3.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(1.0f, 4.0f, -4.0f), 1.0f, stone));
+
+    objects.push_back(new Cube(glm::vec3(0.0f, 3.0f, -0.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 3.0f, -1.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 3.0f, -2.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 3.0f, -3.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 3.0f, -4.0f), 1.0f, stone));
+
+    objects.push_back(new Cube(glm::vec3(0.0f, 4.0f, -0.0f), 1.0f, terracotta));
+    objects.push_back(new Cube(glm::vec3(0.0f, 4.0f, -1.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 4.0f, -2.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 4.0f, -3.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 4.0f, -4.0f), 1.0f, terracotta));
+
+    objects.push_back(new Cube(glm::vec3(0.0f, 5.0f, -0.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 5.0f, -1.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 5.0f, -2.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 5.0f, -3.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(0.0f, 5.0f, -4.0f), 1.0f, stone));
+
+    objects.push_back(new Cube(glm::vec3(2.0f, 3.0f, -0.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(2.0f, 3.0f, -1.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(2.0f, 3.0f, -2.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(2.0f, 3.0f, -3.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(2.0f, 3.0f, -4.0f), 1.0f, stone));
+
+    objects.push_back(new Cube(glm::vec3(-2.0f, 3.0f, -0.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 3.0f, -1.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 3.0f, -2.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 3.0f, -3.0f), 1.0f, stone));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 3.0f, -4.0f), 1.0f, stone));
+
 }
 
 void render() {
@@ -264,7 +407,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Create a renderer
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     if (!renderer) {
         SDL_Log("Unable to create renderer: %s", SDL_GetError());
@@ -304,6 +447,12 @@ int main(int argc, char* argv[]) {
                     case SDLK_RIGHT:
                         print("right");
                         camera.rotate(1.0f, 0.0f);
+                        break;
+                    case SDLK_w:
+                        camera.moveY(1.0f);
+                        break;
+                    case SDLK_s:
+                        camera.moveY(-1.0f);
                         break;
                  }
             }
