@@ -28,8 +28,16 @@ const float FOV = 3.1415f/3.0f;
 
 SDL_Renderer* renderer;
 std::vector<Object*> objects;
-Light light(glm::vec3(-1.0, 0, 10), 0.5f, Color(255, 255, 255));
+Light light(glm::vec3(-3.0, 0, 10), 1.0f, Color(255, 255, 255));
 Camera camera(glm::vec3(0.0, 0.0, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 10.0f);
+
+SDL_Surface* loadTexture(const std::string& file) {
+    SDL_Surface* surface = IMG_Load(file.c_str());
+    if (surface == nullptr) {
+        std::cerr << "Unable to load image: " << IMG_GetError() << std::endl;
+    }
+    return surface;
+}
 
 Color getColorFromSurface(SDL_Surface* surface, float u, float v) {
     Color color = {0, 0, 0, 0};  // Inicializa el color como negro por defecto
@@ -56,15 +64,6 @@ Color getColorFromSurface(SDL_Surface* surface, float u, float v) {
     }
 
     return color;
-}
-
-
-SDL_Surface* loadTexture(const std::string& file) {
-    SDL_Surface* surface = IMG_Load(file.c_str());
-    if (surface == nullptr) {
-        std::cerr << "Unable to load image: " << IMG_GetError() << std::endl;
-    }
-    return surface;
 }
 
 void point(glm::vec2 position, Color color) {
@@ -101,7 +100,7 @@ Color castRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const s
     }
 
     if (!intersect.isIntersecting || recursion == MAX_RECURSION) {
-        return Color(173, 216, 230);
+        return {reinterpret_cast<char *>(char(0))};
     }
 
     // Transforma la dirección de la luz y la dirección de la vista al espacio del objeto
@@ -147,6 +146,18 @@ Color castRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const s
     return color;
 }
 
+void drawBackground() {
+    SDL_Texture* surfaceTexture =
+            SDL_CreateTextureFromSurface
+            (renderer, loadTexture(R"(..\assets\bc.png)"));
+    if (surfaceTexture != nullptr) {
+        SDL_RenderCopy(renderer, surfaceTexture, nullptr, nullptr);
+        SDL_DestroyTexture(surfaceTexture);
+    } else {
+        std::cerr << "Unable to create texture from surface! SDL Error: " << SDL_GetError() << std::endl;
+    }
+}
+
 void setUp() {
     Material rubber = {
         Color(80, 0, 0),   // diffuse
@@ -156,7 +167,7 @@ void setUp() {
         0.0f,
         0.0f,
         0.0f,
-        loadTexture(R"(..\assets\STONE2.png)")
+        loadTexture(R"(..\assets\coal.png)")
     };
 
     Material ivory = {
@@ -196,8 +207,7 @@ void setUp() {
     */
 
 
-    //objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -0.0f), 1.0f, rubber));
-    objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -0.0f), 1.0f, glass));
+    objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -0.0f), 1.0f, rubber));
     /*objects.push_back(new Cube(glm::vec3(0.0f, 1.0f, -3.0f), 1.0f, glass));
     objects.push_back(new Cube(glm::vec3(-1.0f, 0.0f, -4.0f), 1.0f, ivory));
     objects.push_back(new Cube(glm::vec3(1.0f, 0.0f, -4.0f), 1.0f, mirror));*/
@@ -223,8 +233,12 @@ void render() {
                     cameraDir + cameraX * screenX + cameraY * screenY
             );
 
+
             Color pixelColor = castRay(camera.position, rayDirection);
-            point(glm::vec2(x, y), pixelColor);
+            //std::cout << pixelColor.i << std::endl;
+            if (pixelColor.i != 1) {
+                point(glm::vec2(x, y), pixelColor);
+            }
         }
     }
 }
@@ -269,7 +283,6 @@ int main(int argc, char* argv[]) {
     setUp();
 
     float rotationSpeed = 0.5f;
-
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -299,10 +312,7 @@ int main(int argc, char* argv[]) {
         }
 
         // Clear the screen
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-
-        objects[0]->rotate(rotationSpeed, glm::vec3(0.0f, 1.0f, 0.0f));
+        drawBackground();
 
         render();
 

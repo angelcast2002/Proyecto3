@@ -5,18 +5,14 @@ Cube::Cube(const glm::vec3& center, float size, const Material& mat)
 }
 
 Intersect Cube::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection) const {
-    // Aplica la matriz de transformación al rayo antes de realizar la intersección
-    glm::vec4 rayOriginTransformed = getTransformMatrix() * glm::vec4(rayOrigin, 1.0f);
-    glm::vec4 rayDirectionTransformed = getTransformMatrix() * glm::vec4(rayDirection, 0.0f);
-
-    glm::vec3 oc = glm::vec3(rayOriginTransformed) - center;
+    glm::vec3 oc = rayOrigin - center;
     float tMin = -std::numeric_limits<float>::infinity();
     float tMax = std::numeric_limits<float>::infinity();
 
     for (int i = 0; i < 3; ++i) {
-        float invDir = 1.0f / rayDirectionTransformed[i];
-        float tNear = (center[i] - size / 2.0f - glm::vec3(rayOriginTransformed)[i]) * invDir;
-        float tFar = (center[i] + size / 2.0f - glm::vec3(rayOriginTransformed)[i]) * invDir;
+        float invDir = 1.0f / rayDirection[i];
+        float tNear = (center[i] - size / 2.0f - rayOrigin[i]) * invDir;
+        float tFar = (center[i] + size / 2.0f - rayOrigin[i]) * invDir;
 
         if (tNear > tFar) {
             std::swap(tNear, tFar);
@@ -32,7 +28,7 @@ Intersect Cube::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDir
 
     float tHit = (tMin > 0.0f) ? tMin : tMax;
 
-    glm::vec3 point = glm::vec3(rayOriginTransformed) + tHit * glm::vec3(rayDirectionTransformed);
+    glm::vec3 point = rayOrigin + tHit * rayDirection;
     glm::vec3 normal(0.0f);
 
     for (int i = 0; i < 3; ++i) {
@@ -47,7 +43,7 @@ Intersect Cube::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDir
     float tx, ty;
 
     // Proyecta las coordenadas del punto de intersección en cada cara del cubo sobre un plano 2D
-    glm::vec3 hitPoint = glm::vec3(rayOriginTransformed) + tHit * glm::vec3(rayDirectionTransformed);
+    glm::vec3 hitPoint = rayOrigin + tHit * rayDirection;
     glm::vec3 localHitPoint = hitPoint - center;
 
     if (std::abs(normal.x) > 0) {
