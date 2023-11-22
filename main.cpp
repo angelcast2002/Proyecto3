@@ -19,16 +19,16 @@
 #include "cube.h"
 
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 400;
+const int SCREEN_HEIGHT = 300;
 const float ASPECT_RATIO = static_cast<float>(SCREEN_WIDTH) / static_cast<float>(SCREEN_HEIGHT);
-const int MAX_RECURSION = 3;
+const int MAX_RECURSION = 1;
 const float BIAS = 0.0001f;
 const float FOV = 3.1415f/3.0f;
 
 SDL_Renderer* renderer;
 std::vector<Object*> objects;
-Light light(glm::vec3(-2.0, 0, 10), 1.0f, Color(255, 255, 255));
+Light light(glm::vec3(-10.0, 0, 10), 1.0f, Color(255, 255, 255));
 Camera camera(glm::vec3(0.0, 3.0, 10.0f), glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 10.0f);
 
 SDL_Surface* loadTexture(const std::string& file) {
@@ -151,7 +151,7 @@ Color castRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const s
 void drawBackground() {
     SDL_Texture* surfaceTexture =
             SDL_CreateTextureFromSurface
-            (renderer, loadTexture(R"(..\assets\bc.png)"));
+                    (renderer, loadTexture(R"(..\assets\bc.png)"));
     if (surfaceTexture != nullptr) {
         SDL_RenderCopy(renderer, surfaceTexture, nullptr, nullptr);
         SDL_DestroyTexture(surfaceTexture);
@@ -166,7 +166,7 @@ void setUp() {
             0.18,
             0.35,
             5.0f,
-            0.8f,
+            0.0f,
             0.0f,
             2.0f,
             loadTexture(R"(..\assets\doorUp.png)")
@@ -177,21 +177,21 @@ void setUp() {
             0.18,
             0.35,
             5.0f,
-            0.8f,
+            0.0f,
             0.0f,
             2.0f,
             loadTexture(R"(..\assets\doorDown.png)")
     };
 
     Material oak = {
-        Color(80, 0, 0),   // diffuse
-        0.18,
-        0.35,
-        3.0f,
-        0.8f,
-        0.0f,
-        3.0f,
-        loadTexture(R"(..\assets\oak.png)")
+            Color(80, 0, 0),   // diffuse
+            0.18,
+            0.35,
+            3.0f,
+            0.0f,
+            0.0f,
+            3.0f,
+            loadTexture(R"(..\assets\oak.png)")
     };
 
     Material wood = {
@@ -199,7 +199,7 @@ void setUp() {
             0.16,
             0.3,
             2.0f,
-            0.8f,
+            0.0f,
             0.0f,
             3.0f,
             loadTexture(R"(..\assets\rawWood.png)")
@@ -210,7 +210,7 @@ void setUp() {
             0.3,
             0.5,
             3.0f,
-            0.8f,
+            0.0f,
             0.0f,
             1.6f,
             loadTexture(R"(..\assets\stone.png)")
@@ -221,8 +221,8 @@ void setUp() {
             0.8,
             0.8,
             20.0f,
-            5.0f,
-            0.8f,
+            0.1f,
+            0.05f,
             1.7f,
             loadTexture(R"(..\assets\glowstone.png)")
     };
@@ -232,7 +232,7 @@ void setUp() {
             0.71,
             0.67,
             20.0f,
-            0.8f,
+            0.0f,
             0.0f,
             1.6f,
             loadTexture(R"(..\assets\terracotta.png)")
@@ -247,9 +247,9 @@ void setUp() {
     objects.push_back(new Cube(glm::vec3(-1.0f, 0.0f, -0.0f), 1.0f, oak));
     objects.push_back(new Cube(glm::vec3(-1.0f, 1.0f, -0.0f), 1.0f, oak));
 
-    objects.push_back(new Cube(glm::vec3(1.0f, 2.0f, -0.0f), 1.0f, stone));
+    //objects.push_back(new Cube(glm::vec3(1.0f, 2.0f, -0.0f), 1.0f, stone));
     objects.push_back(new Cube(glm::vec3(0.0f, 2.0f, -0.0f), 1.0f, glowstone));
-    objects.push_back(new Cube(glm::vec3(-1.0f, 2.0f, -0.0f), 1.0f, stone));
+    //objects.push_back(new Cube(glm::vec3(-1.0f, 2.0f, -0.0f), 1.0f, stone));
 
     objects.push_back(new Cube(glm::vec3(2.0f, 0.0f, -0.0f), 1.0f, wood));
     objects.push_back(new Cube(glm::vec3(2.0f, 1.0f, -0.0f), 1.0f, wood));
@@ -300,10 +300,7 @@ void setUp() {
     objects.push_back(new Cube(glm::vec3(1.0f, 2.0f, -4.0f), 1.0f, stone));
 
     // Techo
-    objects.push_back(new Cube(glm::vec3(-1.0f, 3.0f, -0.0f), 1.0f, terracotta));
-    objects.push_back(new Cube(glm::vec3(-1.0f, 3.0f, -1.0f), 1.0f, stone));
-    objects.push_back(new Cube(glm::vec3(-1.0f, 3.0f, -2.0f), 1.0f, stone));
-    objects.push_back(new Cube(glm::vec3(-1.0f, 3.0f, -3.0f), 1.0f, stone));
+    //objects.push_back(new Cube(glm::vec3(-1.0f, 3.0f, -0.0f), 1.0f, terracotta));
     objects.push_back(new Cube(glm::vec3(-1.0f, 3.0f, -4.0f), 1.0f, terracotta));
 
     objects.push_back(new Cube(glm::vec3(-1.0f, 4.0f, -0.0f), 1.0f, stone));
@@ -312,10 +309,7 @@ void setUp() {
     objects.push_back(new Cube(glm::vec3(-1.0f, 4.0f, -3.0f), 1.0f, stone));
     objects.push_back(new Cube(glm::vec3(-1.0f, 4.0f, -4.0f), 1.0f, stone));
 
-    objects.push_back(new Cube(glm::vec3(1.0f, 3.0f, -0.0f), 1.0f, terracotta));
-    objects.push_back(new Cube(glm::vec3(1.0f, 3.0f, -1.0f), 1.0f, stone));
-    objects.push_back(new Cube(glm::vec3(1.0f, 3.0f, -2.0f), 1.0f, stone));
-    objects.push_back(new Cube(glm::vec3(1.0f, 3.0f, -3.0f), 1.0f, stone));
+    //objects.push_back(new Cube(glm::vec3(1.0f, 3.0f, -0.0f), 1.0f, terracotta));
     objects.push_back(new Cube(glm::vec3(1.0f, 3.0f, -4.0f), 1.0f, terracotta));
 
     objects.push_back(new Cube(glm::vec3(1.0f, 4.0f, -0.0f), 1.0f, stone));
@@ -324,16 +318,10 @@ void setUp() {
     objects.push_back(new Cube(glm::vec3(1.0f, 4.0f, -3.0f), 1.0f, stone));
     objects.push_back(new Cube(glm::vec3(1.0f, 4.0f, -4.0f), 1.0f, stone));
 
-    objects.push_back(new Cube(glm::vec3(0.0f, 3.0f, -0.0f), 1.0f, stone));
-    objects.push_back(new Cube(glm::vec3(0.0f, 3.0f, -1.0f), 1.0f, stone));
-    objects.push_back(new Cube(glm::vec3(0.0f, 3.0f, -2.0f), 1.0f, stone));
-    objects.push_back(new Cube(glm::vec3(0.0f, 3.0f, -3.0f), 1.0f, stone));
+    //objects.push_back(new Cube(glm::vec3(0.0f, 3.0f, -0.0f), 1.0f, stone));
     objects.push_back(new Cube(glm::vec3(0.0f, 3.0f, -4.0f), 1.0f, stone));
 
-    objects.push_back(new Cube(glm::vec3(0.0f, 4.0f, -0.0f), 1.0f, terracotta));
-    objects.push_back(new Cube(glm::vec3(0.0f, 4.0f, -1.0f), 1.0f, stone));
-    objects.push_back(new Cube(glm::vec3(0.0f, 4.0f, -2.0f), 1.0f, stone));
-    objects.push_back(new Cube(glm::vec3(0.0f, 4.0f, -3.0f), 1.0f, stone));
+    //objects.push_back(new Cube(glm::vec3(0.0f, 4.0f, -0.0f), 1.0f, terracotta));
     objects.push_back(new Cube(glm::vec3(0.0f, 4.0f, -4.0f), 1.0f, terracotta));
 
     objects.push_back(new Cube(glm::vec3(0.0f, 5.0f, -0.0f), 1.0f, stone));
@@ -395,9 +383,9 @@ int main(int argc, char* argv[]) {
     }
 
     // Create a window
-    SDL_Window* window = SDL_CreateWindow("Hello World - FPS: 0", 
-                                          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
-                                          SCREEN_WIDTH, SCREEN_HEIGHT, 
+    SDL_Window* window = SDL_CreateWindow("Hello World - FPS: 0",
+                                          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                          SCREEN_WIDTH, SCREEN_HEIGHT,
                                           SDL_WINDOW_SHOWN);
 
     if (!window) {
@@ -422,10 +410,10 @@ int main(int argc, char* argv[]) {
     int frameCount = 0;
     Uint32 startTime = SDL_GetTicks();
     Uint32 currentTime = startTime;
-    
-    setUp();
 
+    setUp();
     float rotationSpeed = 0.5f;
+    bool reRender = true;
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -436,34 +424,46 @@ int main(int argc, char* argv[]) {
                 switch(event.key.keysym.sym) {
                     case SDLK_UP:
                         camera.move(1.0f);
+                        reRender = true;
                         break;
                     case SDLK_DOWN:
                         camera.move(-1.0f);
+                        reRender = true;
                         break;
                     case SDLK_LEFT:
                         print("left");
                         camera.rotate(-1.0f, 0.0f);
+                        reRender = true;
                         break;
                     case SDLK_RIGHT:
                         print("right");
                         camera.rotate(1.0f, 0.0f);
+                        reRender = true;
                         break;
                     case SDLK_w:
                         camera.moveY(1.0f);
+                        reRender = true;
                         break;
                     case SDLK_s:
                         camera.moveY(-1.0f);
+                        reRender = true;
                         break;
-                 }
+                }
             }
 
 
         }
 
-        // Clear the screen
-        drawBackground();
+        if (reRender) {
+            reRender = false;
+            // Clear the screen
+            drawBackground();
 
-        render();
+            // Render objects
+            render();
+        }
+
+
 
         // Present the renderer
         SDL_RenderPresent(renderer);
