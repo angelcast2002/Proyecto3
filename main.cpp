@@ -28,8 +28,44 @@ const float FOV = 3.1415f/3.0f;
 
 SDL_Renderer* renderer;
 std::vector<Object*> objects;
-Light light(glm::vec3(-1.0, 0, 10), 1.5f, Color(255, 255, 255));
+Light light(glm::vec3(-1.0, 0, 10), 0.7f, Color(255, 255, 255));
 Camera camera(glm::vec3(0.0, 0.0, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 10.0f);
+
+Color getColorFromSurface(SDL_Surface* surface, float u, float v) {
+    Color color = {0, 0, 0, 0};  // Inicializa el color como negro por defecto
+
+    if (surface != NULL) {
+        // Asegúrate de que las coordenadas de textura estén en el rango [0, 1]
+        u = fmodf(u, 1.0f);
+        v = fmodf(v, 1.0f);
+
+        if (u < 0) u += 1.0f;
+        if (v < 0) v += 1.0f;
+
+        // Convierte las coordenadas de textura a coordenadas de píxeles
+        int x = (int)(u * surface->w);
+        int y = (int)(v * surface->h);
+
+        // Obtiene el color del píxel en esas coordenadas
+        Uint32 pixel = 0;
+        Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * surface->format->BytesPerPixel;
+        memcpy(&pixel, p, surface->format->BytesPerPixel);
+
+        // Extrae los componentes de color RGBA
+        SDL_GetRGBA(pixel, surface->format, &color.r, &color.g, &color.b, &color.a);
+    }
+
+    return color;
+}
+
+
+SDL_Surface* loadTexture(const std::string& file) {
+    SDL_Surface* surface = IMG_Load(file.c_str());
+    if (surface == nullptr) {
+        std::cerr << "Unable to load image: " << IMG_GetError() << std::endl;
+    }
+    return surface;
+}
 
 void point(glm::vec2 position, Color color) {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
@@ -94,12 +130,21 @@ Color castRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const s
         refractedColor = castRay(origin, refractDirObjSpace, recursion + 1);
     }
 
+    Material mat = hitObject->material;
+    Color diffusecolor;
+    if (mat.surface != nullptr) {
+        diffusecolor = getColorFromSurface(mat.surface, intersect.tx, intersect.ty);
+    } else {
+        diffusecolor = mat.diffuse;
+    }
+
     // Cálculos de luz difusa y especular
-    Color diffuseLight = hitObject->material.diffuse * light.intensity * diffuseLightIntensity * hitObject->material.albedo * shadowIntensity;
+    Color diffuseLight = diffusecolor * light.intensity * diffuseLightIntensity * hitObject->material.albedo * shadowIntensity;
     Color specularLight = light.color * light.intensity * specLightIntensity * hitObject->material.specularAlbedo * shadowIntensity;
 
     // Combinación de los componentes de iluminación y efectos
     Color color = (diffuseLight + specularLight) * (1.0f - hitObject->material.reflectivity - hitObject->material.transparency) + reflectedColor * hitObject->material.reflectivity + refractedColor * hitObject->material.transparency;
+    color = color * diffusecolor;
     return color;
 }
 
@@ -110,7 +155,9 @@ void setUp() {
         0.1,
         10.0f,
         0.0f,
-        0.0f
+        0.0f,
+        0.0f,
+        loadTexture("C:\\Users\\caste\\OneDrive\\Documentos\\Universidad\\semestre6\\graficosxcomputador\\Proyecto3\\assets\\STONE2.png")
     };
 
     Material ivory = {
@@ -186,26 +233,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    int imgFlags = IMG_INIT_PNG;  // O ajusta según el formato de tu imagen
-    if (!(IMG_Init(imgFlags) & imgFlags)) {
-        // Manejo de error si la inicialización falla
-        SDL_Log("Failed to initialize SDL_image: %s", IMG_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    SDL_Surface* surface = IMG_Load("C:\\Users\\caste\\OneDrive\\Documentos\\Universidad\\semestre6\\graficosxcomputador\\Proyecto3\\assets\\STONE2.png");
-    if (!surface) {
-        // Manejo de error si la carga de la imagen falla
-        SDL_Log("Failed to load texture: %s", IMG_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);  // Libera la superficie, ya que ya no la necesitamos
-
-
     // Create a window
     SDL_Window* window = SDL_CreateWindow("Hello World - FPS: 0", 
                                           SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
@@ -236,15 +263,6 @@ int main(int argc, char* argv[]) {
     Uint32 currentTime = startTime;
     
     setUp();
-
-    if (!objects.empty()) {
-        objects[0]->setTexture(texture);
-    } else {
-        SDL_Log("No objects created!");
-        SDL_DestroyTexture(texture);
-        SDL_Quit();
-        return 1;
-    }
 
     float rotationSpeed = 0.5f;
 

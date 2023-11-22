@@ -43,6 +43,27 @@ Intersect Cube::rayIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDir
         }
     }
 
-    return Intersect{true, tHit, point, normal};
-}
+    // Calcula las coordenadas de textura para cualquier cubo en el espacio
+    float tx, ty;
 
+    // Proyecta las coordenadas del punto de intersección en cada cara del cubo sobre un plano 2D
+    glm::vec3 hitPoint = glm::vec3(rayOriginTransformed) + tHit * glm::vec3(rayDirectionTransformed);
+    glm::vec3 localHitPoint = hitPoint - center;
+
+    if (std::abs(normal.x) > 0) {
+        tx = (localHitPoint.z / size) + 0.5f;
+        ty = (localHitPoint.y / size) + 0.5f;
+    } else if (std::abs(normal.y) > 0) {
+        tx = (localHitPoint.x / size) + 0.5f;
+        ty = (localHitPoint.z / size) + 0.5f;
+    } else {
+        tx = (localHitPoint.x / size) + 0.5f;
+        ty = (localHitPoint.y / size) + 0.5f;
+    }
+
+    // Asegúrate de que las coordenadas UV estén en el rango [0, 1]
+    tx = tx - floor(tx);
+    ty = ty - floor(ty);
+
+    return Intersect{true, tHit, point, normal, tx, ty};
+}

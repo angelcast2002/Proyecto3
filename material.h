@@ -10,4 +10,5 @@ struct Material {
   float reflectivity;
   float transparency;
   float refractionIndex;
+  SDL_Surface* surface;
 };

@@ -45,6 +45,15 @@ struct Color {
         );
     }
 
+    Color operator*(Color color) const {
+        return Color(
+            std::clamp(static_cast<Uint8>(r * color.r), Uint8(0), Uint8(255)),
+            std::clamp(static_cast<Uint8>(g * color.g), Uint8(0), Uint8(255)),
+            std::clamp(static_cast<Uint8>(b * color.b), Uint8(0), Uint8(255)),
+            std::clamp(static_cast<Uint8>(a * color.a), Uint8(0), Uint8(255))
+        );
+    };
+
     // Friend function to allow float * Color
     friend Color operator*(float factor, const Color& color);
 };
